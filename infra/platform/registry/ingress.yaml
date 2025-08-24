@@ -3,9 +3,8 @@ kind: Ingress
 metadata:
   name: registry
   namespace: platform
-  annotations:
-    kubernetes.io/ingress.class: nginx
 spec:
+  ingressClassName: nginx
   tls:
     - hosts: ["registry.local.test"]
       secretName: platform-tls
