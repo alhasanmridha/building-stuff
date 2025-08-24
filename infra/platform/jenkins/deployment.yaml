@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: jenkins }
+  template:
+    metadata:
+      labels: { app: jenkins }
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: jenkins
+          image: jenkins/jenkins:lts-jdk17
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_OPTS
+              value: "-Djenkins.install.runSetupWizard=false"
+            - name: CASC_JENKINS_CONFIG
+              value: /var/jenkins_home/casc_configs/jcasc.yaml
+            - name: JENKINS_USER
+              valueFrom: { secretKeyRef: { name: jenkins-admin, key: JENKINS_USER } }
+            - name: JENKINS_PASS
+              valueFrom: { secretKeyRef: { name: jenkins-admin, key: JENKINS_PASS } }
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+            - name: casc
+              mountPath: /var/jenkins_home/casc_configs
+      volumes:
+        - name: jenkins-home
+          persistentVolumeClaim: { claimName: jenkins-home }
+        - name: casc
+          configMap:
+            name: jenkins-casc
+            items:
+              - key: jcasc.yaml
+                path: jcasc.yaml

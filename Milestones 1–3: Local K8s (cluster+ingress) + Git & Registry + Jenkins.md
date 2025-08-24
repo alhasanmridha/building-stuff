@@ -596,7 +596,7 @@ clean:
 
 ## 4) Run it
 
-1. \*\*Edit \*\*\`\` (or local DNS) to add:
+1. Append this in /etc/host:
 
    ```
    127.0.0.1 gitea.local.test registry.local.test jenkins.local.test
