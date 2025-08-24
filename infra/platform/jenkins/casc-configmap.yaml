@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-casc
+  namespace: platform
+data:
+  jcasc.yaml: |
+    jenkins:
+      systemMessage: "Local Jenkins with JCasC"
+      numExecutors: 2
+      securityRealm:
+        local:
+          allowsSignup: false
+          users:
+            - id: ${JENKINS_USER}
+              password: ${JENKINS_PASS}
+      authorizationStrategy:
+        loggedInUsersCanDoAnything:
+          allowAnonymousRead: false
+    tool:
+      git:
+        installations:
+          - name: default
+            home: "/usr/bin/git"
+    unclassified:
+      location:
+        url: https://jenkins.local.test/
+    credentials:
+      system:
+        domainCredentials:
+          - credentials: []
+    jobs: []

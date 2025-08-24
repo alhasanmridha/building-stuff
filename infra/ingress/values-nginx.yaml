@@ -1,0 +1,7 @@
+# Minimal values for ingress-nginx with kind
+controller:
+  replicaCount: 1
+  service:
+    type: NodePort
+  admissionWebhooks:
+    enabled: true

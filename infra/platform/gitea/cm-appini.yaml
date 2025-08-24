@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitea-appini
+  namespace: platform
+data:
+  app.ini: |
+    [server]
+    DOMAIN = gitea.local.test
+    ROOT_URL = https://gitea.local.test/
+    PROTOCOL = http
+    HTTP_PORT = 3000
+    START_SSH_SERVER = false
+    [service]
+    DISABLE_REGISTRATION = false
