@@ -21,14 +21,6 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
-            - name: appini
-              mountPath: /data/gitea/conf
       volumes:
         - name: data
           persistentVolumeClaim: { claimName: gitea-data }
-        - name: appini
-          configMap:
-            name: gitea-appini
-            items:
-              - key: app.ini
-                path: app.ini

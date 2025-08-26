@@ -7,10 +7,20 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: init
           image: gitea/gitea:1.22.3
           command: ["bash","-lc"]
           args:
             - >-
-              gitea admin user create --admin --username admin --password admin123 --email admin@gitea.local || true
+              echo "Waiting for /data/gitea/conf/app.ini..."; for i in $(seq 1 180); do [ -f /data/gitea/conf/app.ini ] && break; sleep 1; done; /usr/local/bin/gitea -c /data/gitea/conf/app.ini admin user list | grep -q " giteaadmin " || /usr/local/bin/gitea -c /data/gitea/conf/app.ini admin user create --admin --username giteaadmin --password admin123 --email giteaadmin@gitea.local; /usr/local/bin/gitea -c /data/gitea/conf/app.ini admin user change-password --username giteaadmin --password admin123 || true
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: gitea-data }

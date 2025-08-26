@@ -11,5 +11,12 @@ data:
     PROTOCOL = http
     HTTP_PORT = 3000
     START_SSH_SERVER = false
+    
+    [database]
+    DB_TYPE = sqlite3
+    PATH = /data/gitea/gitea.db
+    
+    [security]
+    INSTALL_LOCK = true
     [service]
     DISABLE_REGISTRATION = false

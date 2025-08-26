@@ -2,7 +2,7 @@ SHELL := /bin/bash
 CLUSTER_NAME := local-platform
 NS := platform
 
-.PHONY: up down cluster ingress tls platform gitea registry jenkins status
+.PHONY: up down cluster ingress tls platform gitea registry jenkins status start stop
 
 up: cluster ingress tls platform status ## Create cluster + ingress + TLS + deploy platform
 
@@ -35,12 +35,12 @@ gitea:
 	kubectl apply -f infra/platform/namespace.yaml
 	kubectl apply -f infra/platform/gitea/pvc.yaml
 	kubectl apply -f infra/platform/gitea/secret-env.yaml
-	kubectl apply -f infra/platform/gitea/cm-appini.yaml
 	kubectl apply -f infra/platform/gitea/deployment.yaml
 	kubectl apply -f infra/platform/gitea/service.yaml
 	kubectl apply -f infra/platform/gitea/ingress.yaml
-	kubectl apply -f infra/platform/gitea/init-admin-job.yaml || true
 	kubectl -n $(NS) rollout status deploy/gitea
+	kubectl apply -f infra/platform/gitea/init-admin-job.yaml
+	kubectl -n $(NS) wait --for=condition=complete --timeout=300s job/gitea-init-admin || true
 
 registry:
 	kubectl apply -f infra/platform/registry/pvc.yaml
@@ -59,13 +59,22 @@ jenkins:
 	kubectl -n $(NS) rollout status deploy/jenkins
 
 status:
-	@echo "\nEndpoints:" \
-	&& echo "  Gitea:    https://gitea.local.test" \
-	&& echo "  Registry: https://registry.local.test" \
-	&& echo "  Jenkins:  https://jenkins.local.test" \
-	&& echo "\nIf hosts don't resolve, add to /etc/hosts: 127.0.0.1 gitea.local.test registry.local.test jenkins.local.test" \
-	&& echo "\nJenkins admin: admin / admin123 (change in secret-admin.yaml)"
+	@NS=$(NS) bash scripts/status.sh
 
 clean:
 	kind delete cluster --name $(CLUSTER_NAME) || true
 	@echo "Cluster removed."
+
+# Stop/Start cluster without deleting it (stop/start kind node containers)
+stop:
+	@echo "Stopping kind nodes for $(CLUSTER_NAME)..."
+	@docker ps --format '{{.Names}}' | grep -E '^$(CLUSTER_NAME)-' >/dev/null 2>&1 \
+		&& docker stop $$(docker ps --format '{{.Names}}' | grep -E '^$(CLUSTER_NAME)-') || echo "No running nodes to stop."
+
+start:
+	@echo "Starting kind nodes for $(CLUSTER_NAME)..."
+	@docker ps -a --format '{{.Names}}' | grep -E '^$(CLUSTER_NAME)-' >/dev/null 2>&1 \
+		&& docker start $$(docker ps -a --format '{{.Names}}' | grep -E '^$(CLUSTER_NAME)-') || echo "No stopped nodes found."
+	@echo "Waiting for nodes to become Ready..."
+	@kubectl cluster-info --context kind-$(CLUSTER_NAME) >/dev/null 2>&1 || true
+	@kubectl wait --for=condition=Ready node --all --timeout=120s || true
