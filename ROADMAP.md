@@ -84,7 +84,10 @@ This roadmap is your guide for incrementally building out the platform. Each mil
 
 ---
 
-## 9) Payments & Concurrency
+## 9) SSO Login
+* Standard SSO Login
+
+## 10) Payments & Concurrency
 
 * Implement idempotency keys for payment flows
 * Add Outbox or message bus (Kafka/Redpanda)
@@ -93,7 +96,7 @@ This roadmap is your guide for incrementally building out the platform. Each mil
 
 ---
 
-## 10) Real‑Time Updates
+## 11) Real‑Time Updates
 
 * Merchant dashboard gets live updates (WebSocket/SSE)
 * Simple UI to show updates (optional)
@@ -101,7 +104,7 @@ This roadmap is your guide for incrementally building out the platform. Each mil
 
 ---
 
-## 11) Production‑like Ops
+## 12) Production‑like Ops
 
 * Add HPA, PodDisruptionBudget, probes
 * Use Argo Rollouts for blue/green or canary
@@ -110,12 +113,13 @@ This roadmap is your guide for incrementally building out the platform. Each mil
 
 ---
 
-## 12) Testing & Chaos
+## 13) Testing & Chaos
 
 * Load test with k6
 * Chaos experiments (kill pods, inject latency, DB failover)
 * Add SLO dashboards + Alertmanager routes
 * Success: SLOs met, alerts trigger, chaos tolerated
+* **Make the chaos engineering autonomous using AI model.**
 
 ---
 
